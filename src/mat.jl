@@ -177,3 +177,27 @@ function MatDestroy(mat::PetscMat)
     error = ccall((:MatDestroy, libpetsc), PetscErrorCode, (Ptr{CMat},), mat.ptr)
     @assert iszero(error)
 end
+
+"""
+    MatCreateComposite(mat::PetscMat, smat::PetscMat)
+
+Wrapper to `MatCompositeAddMat`
+"""
+# comm::MPI.Comm = MPI.COMM_WORLD
+function MatCreateComposite(comm::MPI.Comm, nmat::PetscInt, mats::Vector{PetscMat}, mat::PetscMat)
+    error = ccall((:MatCompositeAddMat, libpetsc), PetscErrorCode, (MPI.MPI_Comm, PetscInt, Ptr{CMat}, Ptr{CMat}),
+                  comm, nmat, [x.ptr for x in mats], mat.ptr)
+    @assert iszero(error)
+end
+
+function MatCreateComposite(comm::MPI.Comm, nmat::Integer, mats::Vector{PetscMat}, mat::PetscMat)
+    MatCreateComposite(comm, PetscInt(nmat), mats, mat)
+end
+
+function MatCreateComposite(nmat::PetscInt, mats::Vector{PetscMat}, mat::PetscMat)
+    MatCreateComposite(MPI.COMM_WORLD, nmat, mats, mat)
+end
+
+function MatCreateComposite(nmat::Integer, mats::Vector{PetscMat}, mat::PetscMat)
+    MatCreateComposite(MPI.COMM_WORLD, PetscInt(nmat), mats, mat)
+end

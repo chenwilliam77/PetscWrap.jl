@@ -67,7 +67,8 @@ export  PetscMat, CMat,
         MatSetUp,
         MatSetValue,
         MatSetValues,
-        MatView
+        MatView,
+        MatCreateComposite
 
 include("ksp.jl")
 export  PetscKSP, CKSP,
